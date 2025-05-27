@@ -1,0 +1,97 @@
+﻿@inject NavigationManager NavManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserService UserService
+
+@inherits LayoutComponentBase
+
+<Layout Sider>
+    <LayoutSider>
+        <LayoutSiderContent>
+            <AuthorizeView>
+                <Authorized>
+                    <NavMenu />
+                </Authorized>
+            </AuthorizeView>
+        </LayoutSiderContent>
+    </LayoutSider>
+    
+    <Layout>
+        <LayoutHeader @key="@NavManager.Uri" Fixed>
+            <Bar Mode="BarMode.Horizontal"
+                Breakpoint="Breakpoint.Desktop"
+                Background="Background.Light"
+                ThemeContrast="ThemeContrast.Light">
+   
+                <BarMenu>
+                    <BarStart Margin="Margin.Is3">
+                        <Heading Size="HeadingSize.Is4">@pageTitle</Heading>
+                    </BarStart>
+                    <BarEnd Margin="Margin.Is2">
+                        <BarItem>
+                            <AuthorizeView>
+                                <Authorized>
+                                    <Button Color="Color.Secondary" Clicked="@LogoutAsync">Log out</Button>
+                                </Authorized>
+                                <NotAuthorized>
+                                    <Button Margin="Margin.Is1" Color="Color.Primary" Type="ButtonType.Link" To="/auth/signup">Sign up</Button>
+                                    <Button Color="Color.Secondary" Type="ButtonType.Link" To="/auth/login">Log in</Button>
+                                </NotAuthorized>
+                            </AuthorizeView>
+                        </BarItem>
+                    </BarEnd>
+                </BarMenu>
+            </Bar>
+        </LayoutHeader>
+
+        <LayoutContent Margin="Margin.Is3">
+            @Body
+        </LayoutContent>
+    </Layout>
+</Layout>
+
+@code {
+    private string pageTitle = string.Empty;
+
+    protected override void OnInitialized() {
+        // Set the page title based on the current route
+        SetPageTitle();
+
+        // Subscribe to location changes to update the page title dynamically
+        NavManager.LocationChanged += HandleLocationChanged;
+    }
+
+    // This method is called when the location changes
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e) {
+        SetPageTitle();
+        StateHasChanged(); // Forces UI refresh
+    }
+
+    // This method is called when the component is disposed
+    public void Dispose() {
+        if (NavManager is not null) NavManager.LocationChanged -= HandleLocationChanged;
+    }
+
+    // This method sets the page title based on the current route
+    private void SetPageTitle() {
+        var path = new Uri(NavManager.Uri).AbsolutePath; // Get the current path
+        
+        // Set the page title based on the current path
+        pageTitle = path switch {
+            "/" => "Home",
+            "/events" => "Events",
+            "/attending" => "Attending",
+            "/hosting" => "Hosting",
+            "/auth/login" => "Login",
+            "/auth/signup" => "Sign Up",
+            _ when path.StartsWith("/edit") => path == "/edit" ? "Create Event" : $"Edit Event: {Uri.UnescapeDataString(path.Replace("/edit/", ""))}",
+            _ when path.StartsWith("/events") => "Event Details",
+            _ => string.Empty
+        };
+    }
+
+    // This method is called when the user clicks the logout button
+    private async Task LogoutAsync() {
+        await UserService.LogoutAsync(); // Call logout service
+        NavManager.NavigateTo("/"); // Redirect to home page
+    }
+}

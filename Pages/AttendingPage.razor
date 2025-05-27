@@ -1,0 +1,32 @@
+@attribute [Authorize]
+@page "/attending"
+@inject UserService UserService
+@inject EventService EventService
+
+<PageTitle>Attending</PageTitle>
+
+<Lead>You are attending @(eventsAttending?.Count ?? 0) events.</Lead>
+@if(eventsAttending?.Count > 0) {
+    <CardDeck>
+        @foreach (var eventAttending in eventsAttending) {
+            <EventCard existingEvent="@eventAttending" />
+        }
+    </CardDeck>
+} 
+
+@code {
+    private List<EventModel> eventsAttending = new();
+
+    protected override async Task OnInitializedAsync() {
+        var currentUser = await UserService.GetCurrentUserAsync();
+
+        if (currentUser is null) return; // No user logged in
+
+        // Filter and sort events to only include those the user is attending
+        eventsAttending = (await EventService.GetEventsByAttendeeAsync(currentUser.Email).ConfigureAwait(false))
+            .OrderBy(e => e.Date)
+            .ThenBy(e => e.Time)
+            .ToList();
+    }
+}
+

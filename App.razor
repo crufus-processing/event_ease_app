@@ -1,0 +1,31 @@
+﻿@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />   
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <Container>
+            <Alert Color="Color.Danger" Style="display: block !important;" Show>
+                <AlertMessage>
+                    <Text>Sorry, there's nothing at this address.</Text>
+                </AlertMessage>
+            </Alert>
+        </Container>
+    </NotFound>
+</Router>
+
+@code {
+    protected override void OnInitialized() {
+        /* 
+         * Subscribe to the LocationChanged event to update the authentication state
+         * when the location changes (e.g., after a successful login or logout). 
+        */
+        NavManager.LocationChanged += (sender, args) => {
+            ((AuthStateProvider)AuthStateProvider).UpdateAuthState();
+        };
+    } 
+}

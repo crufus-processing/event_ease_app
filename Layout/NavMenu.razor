@@ -1,0 +1,44 @@
+﻿<Bar Mode="BarMode.VerticalInline"
+    Alignment="Alignment.Start"
+    Breakpoint="Breakpoint.Desktop"
+    Background="Background.Light"
+    ThemeContrast="ThemeContrast.Light">
+    <BarBrand>
+        <BarItem ElementId="brand">
+            <BarIcon IconName="IconName.Calendar" />
+            <Text>EventEase</Text>
+        </BarItem>
+    </BarBrand>
+    <BarMenu>
+        <BarItem>
+            <BarLink To="/">
+                <BarIcon IconName="IconName.Portrait" />
+                <Text>Home</Text>
+            </BarLink>
+        </BarItem>
+        <BarItem>
+            <BarLink To="/events">
+                <BarIcon IconName="IconName.CalendarWeek" />
+                <Text>All Events</Text>
+            </BarLink>
+        </BarItem>
+        <BarItem>
+            <BarLink To="/attending">
+                <BarIcon IconName="IconName.CalendarDay" />
+                <Text>Attending</Text>
+            </BarLink>
+        </BarItem>
+        <BarItem>
+            <BarLink To="/hosting">
+                <BarIcon IconName="IconName.CalendarCheck" />
+                <Text>Hosting</Text>
+            </BarLink>
+        </BarItem>
+        <BarItem>
+            <BarLink To="/edit">
+                <BarIcon IconName="IconName.PlusSquare" />
+                <Text>Create Event</Text>
+            </BarLink>
+        </BarItem>
+    </BarMenu>
+</Bar>

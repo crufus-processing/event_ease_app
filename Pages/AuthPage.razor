@@ -1,0 +1,110 @@
+@page "/auth/{mode}"
+@inject NavigationManager NavManager
+@inject UserService UserService
+
+<PageTitle>@(mode == "signup" ? "Sign Up" : "Login")</PageTitle>
+
+<Validations @ref="@validationsRef" Mode="ValidationMode.Auto" Model="@user">
+    @if(mode == "signup") {
+        <Validation>
+            <Field Horizontal>
+                <FieldLabel ColumnSize="ColumnSize.Is2" RequiredIndicator>First Name:</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is10">
+                    <TextEdit Placeholder="First name" @bind-Text="@user.FirstName"></TextEdit>
+                    <ValidationError For="@(() => user.FirstName)" />
+                </FieldBody>
+            </Field>
+        </Validation>
+
+        <Validation>
+            <Field Horizontal>
+                <FieldLabel ColumnSize="ColumnSize.Is2" RequiredIndicator>Last Name:</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is10">
+                    <TextEdit Placeholder="Last name" @bind-Text="@user.LastName"></TextEdit>
+                    <ValidationError For="@(() => user.LastName)" />
+                </FieldBody>
+            </Field>
+        </Validation>
+    }
+
+    <Validation>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.Is2" RequiredIndicator>Email:</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.Is10">
+                <TextEdit Placeholder="Email" @bind-Text="@user.Email"></TextEdit>
+                <ValidationError For="@(() => user.Email)" />
+            </FieldBody>
+        </Field>
+    </Validation>
+
+    <Validation>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.Is2" RequiredIndicator>Password:</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.Is10">
+                <TextEdit Placeholder="Password" @bind-Text="@user.Password"></TextEdit>
+                <ValidationError For="@(() => user.Password)" />
+            </FieldBody>
+        </Field>
+    </Validation>
+    
+    <Field Vertical>
+        <FieldBody ColumnSize="ColumnSize.Is10">
+            <Button Margin="Margin.Is1" Color="Color.Primary" Size="Size.Medium" Clicked="@Submit">Submit</Button>
+            <Button Margin="Margin.Is1" Color="Color.Danger" Size="Size.Medium" Clicked="@ResetForm">Reset</Button>
+        </FieldBody>
+    </Field>
+</Validations>
+
+<Alert @ref="failureAlert" Color="Color.Danger" Dismisable>
+    <AlertMessage>
+        @if (mode == "signup") {
+            <Text>Signup failed. Email may already exist.</Text>
+        } else {
+            <Text>Login failed. Email or password may be incorrect.</Text>
+        }
+    </AlertMessage>
+    <CloseButton/>
+</Alert>
+
+@code {
+    [Parameter]
+    public string mode { get; set; } = "login"; // Signup/login mode
+    private UserModel user = new(); // User model for signup/login
+    
+    private Validations? validationsRef; // Reference to validations component
+    private Alert? failureAlert; // Alert for failure message
+
+    protected override async Task OnInitializedAsync() {
+        if (failureAlert is not null) await failureAlert.Hide(); // Hide failure alert on initialization
+    }
+
+    // Method to show alerts, ensuring null checks
+    private async Task ShowAlert(Alert? alert) {
+        if (alert is not null) await alert.Show();
+    }
+
+    // Method to handle form submission
+    private async Task Submit() {
+        // Handles null ref & ensures validation completes before proceeding
+        if (validationsRef is null || !await validationsRef.ValidateAll()) {
+            await ShowAlert(failureAlert);
+            return;
+        }
+
+        // Signup or login user based on the mode
+        bool success = mode == "signup"
+            ? await UserService.Signup(user)
+            : await UserService.LoginAsync(user.Email, user.Password);
+
+        // If login/signup was succesful, navigate to the home page after a delay. Otherwise, show the failure alert.
+        await (success 
+            ? Task.Delay(2000).ContinueWith(_ => NavManager.NavigateTo("/")) 
+            : ShowAlert(failureAlert));
+    }
+
+    // Method to reset the form
+    private void ResetForm() {
+        user = new UserModel(); // Reset user model
+        StateHasChanged(); // Refresh the UI
+    }
+} 

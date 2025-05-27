@@ -1,0 +1,140 @@
+@attribute [Authorize]
+@page "/edit/{eventName?}"
+@inject NavigationManager NavManager
+@inject UserService UserService
+@inject EventService EventService
+
+<PageTitle>@(mode == "edit" ? "Edit Event" : "Create Event")</PageTitle>
+
+@if (updatedEvent is not null) {
+    <Validations @ref="@validationsRef" Mode="ValidationMode.Auto" Model="@updatedEvent">
+        <Validation>
+            <Field Horizontal>
+                <FieldLabel ColumnSize="ColumnSize.Is2" RequiredIndicator>Name:</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is10">
+                    <TextEdit Placeholder="Event name" @bind-Text="@updatedEvent.Name"></TextEdit>
+                    <ValidationError For="@(() => updatedEvent.Name)" />
+                </FieldBody>
+            </Field>
+        </Validation>
+
+        <Validation>
+            <Field Horizontal>
+                <FieldLabel ColumnSize="ColumnSize.Is2" RequiredIndicator>Description:</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is10">
+                    <TextEdit Placeholder="Event description" @bind-Text="@updatedEvent.Description"></TextEdit>
+                    <ValidationError For="@(() => updatedEvent.Description)" />
+                </FieldBody>
+            </Field>
+        </Validation>
+
+        <Validation>
+            <Field Horizontal>
+                <FieldLabel ColumnSize="ColumnSize.Is2" RequiredIndicator>Date:</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is10">
+                    <DatePicker @bind-Date="@updatedEvent.Date"></DatePicker>
+                    <ValidationError For="@(() => updatedEvent.Date)" />
+                </FieldBody>
+            </Field>
+        </Validation>
+
+        <Validation>
+            <Field Horizontal>
+                <FieldLabel ColumnSize="ColumnSize.Is2" RequiredIndicator>Time:</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is10">
+                    <TimePicker @bind-Time="@updatedEvent.Time"></TimePicker>
+                    <ValidationError For="@(() => updatedEvent.Time)" />
+                </FieldBody>
+            </Field>
+        </Validation>
+
+        <Validation>
+            <Field Horizontal>
+                <FieldLabel ColumnSize="ColumnSize.Is2" RequiredIndicator>Location:</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.Is10">
+                    <TextEdit Placeholder="Event location" @bind-Text="@updatedEvent.Location"></TextEdit>
+                    <ValidationError For="@(() => updatedEvent.Location)" />
+                </FieldBody>
+            </Field>
+        </Validation>
+    
+        <Field>
+            <FieldBody ColumnSize="ColumnSize.Is10">
+                <Button Margin="Margin.Is1" Color="Color.Primary" Clicked="@Save">Save</Button>
+                <Button Margin="Margin.Is1" Color="Color.Danger" Clicked="@ResetForm">Reset</Button>
+            </FieldBody>
+        </Field>
+    </Validations>
+
+    <Alert @ref="successAlert" Color="Color.Success" Dismisable>
+        <AlertMessage>
+            <Text>Event successfully saved!</Text>
+        </AlertMessage>
+        <CloseButton/>
+    </Alert>
+    <Alert @ref="failureAlert" Color="Color.Danger" Dismisable>
+        <AlertMessage>
+            <Text>Event could not be saved.</Text>
+        </AlertMessage>
+        <CloseButton/>
+    </Alert> 
+} else {
+    <Lead>Event not found.</Lead>
+}
+
+@code {
+    [Parameter]
+    public string eventName { get; set; } = string.Empty; // Event name from the URL
+    private string mode = "create"; // Create/edit mode
+    public EventModel updatedEvent = new(); // Event model for creating/editing
+    
+    private Validations? validationsRef; // Reference to the validations component
+    private Alert? successAlert; // Alert for success message
+    private Alert? failureAlert; // Alert for failure message
+
+    protected override async Task OnInitializedAsync() {
+        // Check if the event name is provided in the URL and set the mode accordingly
+        mode = !string.IsNullOrEmpty(eventName) ? "edit" : "create";
+
+        // If in edit mode, fetch the event details
+        updatedEvent = mode == "edit"
+            ? await EventService.GetEventByNameAsync(eventName) ?? new EventModel()
+            : new EventModel();
+        
+        if (failureAlert is not null) await failureAlert.Hide(); // Hide failure alert on initialization
+        if (successAlert is not null) await successAlert.Hide(); // Hide success alert on initialization
+    }
+
+    // Method to show alerts, ensuring null checks
+    private async Task ShowAlert(Alert? alert) {
+        if (alert is not null) await alert.Show();
+    }
+    
+    private async Task Save() {
+        // Handles null ref & ensures validation completes before proceeding
+        if (validationsRef is null || !await validationsRef.ValidateAll()) {
+            await ShowAlert(failureAlert);
+            return;
+        }
+
+        bool saved = mode == "edit"
+            ? await EventService.UpdateEvent(updatedEvent)
+            : await EventService.CreateEvent(updatedEvent);
+ 
+        // Display appropriate alert based on success or failure
+        await ShowAlert(saved ? successAlert : failureAlert);
+
+        // If the event was saved successfully, navigate to the home page after a delay
+        if (saved) {
+            await Task.Delay(1000);
+            NavManager.NavigateTo("/");
+        }
+    }
+
+    // Method to reset the form
+    private void ResetForm() {
+        updatedEvent = new EventModel(); // Reset event model
+        StateHasChanged(); // Refresh the UI
+    }
+}
+

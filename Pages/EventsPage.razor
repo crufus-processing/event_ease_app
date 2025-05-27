@@ -1,0 +1,92 @@
+@attribute [Authorize]
+@page "/events"
+@inject NavigationManager NavManager
+@inject UserService UserService
+@inject EventService EventService
+
+@if (currentUser is not null && events.Any()) {
+    <Check TValue="bool" Checked="@filterAttending" CheckedChanged="@FilterByAttending">Attending</Check>
+    <Check TValue="bool" Checked="@filterHosting" CheckedChanged="@FilterByHosting">Hosting</Check>
+
+    <DataGrid TItem="EventModel"
+        Data="@filteredEvents"
+        @bind-SelectedRow="@selectedEvent"
+        FixedColumns
+        Responsive
+        Filterable
+        Sortable
+        SortMode="DataGridSortMode.Multiple"
+        Hoverable
+        NavigationMode="DataGridNavigationMode.Row"
+        RowDoubleClicked="@(() => NavManager.NavigateTo($"/events/{selectedEvent.Name}"))"  >
+    
+        <DataGridCommandColumn />
+        <DataGridColumn Field="@nameof(EventModel.Name)" Caption="Name" TextOverflow="TextOverflow.Truncate"/>
+        <DataGridColumn Field="@nameof(EventModel.Description)" Caption="Description" TextOverflow="TextOverflow.Truncate"/>
+        <DataGridColumn Field="@nameof(EventModel.Date)" Caption="Date" />
+        <DataGridColumn Field="@nameof(EventModel.Time)" Caption="Time" />
+        <DataGridColumn Field="@nameof(EventModel.Location)" Caption="Location" TextOverflow="TextOverflow.Truncate"/>
+        <DataGridColumn Field="@nameof(EventModel.HostEmail)" Caption="Host" TextOverflow="TextOverflow.Truncate"/>
+        <DataGridColumn Field="@nameof(EventModel.AttendeeCount)" Caption="Attendees" />
+    </DataGrid>
+} else {
+    <Lead>No events available.</Lead>
+}
+
+
+@code {
+    private List<EventModel> events { get; set; } = new();
+    private List<EventModel> filteredEvents { get; set; } = new();
+    private EventModel selectedEvent { get; set; } = new();
+    private UserModel? currentUser;
+
+    private bool filterHosting { get; set; } = false;
+    private bool filterAttending { get; set; } = false;
+
+    protected override async Task OnInitializedAsync() {
+        // Fetch all events and current user
+        var eventsTask = EventService.GetAllEventsAsync();
+        var userTask = UserService.GetCurrentUserAsync();
+
+        await Task.WhenAll(eventsTask, userTask);
+
+        events = eventsTask.Result;
+        currentUser = userTask.Result;
+
+        // Apply initial filters
+        FilterEvents();
+    }
+
+    // Method to toggle the filter for hosting events
+    private void FilterByHosting() {
+        filterHosting = !filterHosting;
+        FilterEvents();
+    }
+
+    // Method to toggle the filter for attending events
+    private void FilterByAttending() {
+        filterAttending = !filterAttending;
+        FilterEvents();
+    }
+
+    // Method to filter events based on the current user's hosting and attending status
+    private void FilterEvents() {
+        // If no user is logged in, show all events
+        if (currentUser is null) {
+            filteredEvents = events;
+            return;
+        }
+
+        var currentUserEmail = currentUser.Email;
+        var filteredList = events;
+
+        // Applies hosting filter
+        if (filterHosting) filteredList = filteredList.Where(e => e.HostEmail == currentUserEmail).ToList();
+
+        // Applies attending filter
+        if (filterAttending) filteredList = filteredList.Where(e => e.Attendees.Any(a => a.Email == currentUserEmail)).ToList();
+        
+        // Assigns the filtered list to the filteredEvents property
+        filteredEvents = filteredList; 
+    }
+}

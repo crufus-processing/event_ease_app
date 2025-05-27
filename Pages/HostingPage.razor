@@ -1,0 +1,32 @@
+@attribute [Authorize]
+@page "/hosting"
+@inject UserService UserService
+@inject EventService EventService
+
+<PageTitle>Hosting</PageTitle>
+
+<Lead>You are hosting @(eventsHosting?.Count ?? 0) events.</Lead>
+@if(eventsHosting?.Count > 0) {
+    <CardDeck>
+        @foreach (var eventHosting in eventsHosting) {
+            <EventCard existingEvent="@eventHosting" />
+        }
+    </CardDeck>
+} 
+
+@code {
+    private List<EventModel> eventsHosting = new();
+
+    protected override async Task OnInitializedAsync() {
+        var currentUser = await UserService.GetCurrentUserAsync();
+
+        if (currentUser is null) return; // No user logged in
+
+        // Filter and sort events to only include those the user is hosting
+        eventsHosting = (await EventService.GetEventsByHostAsync(currentUser.Email))
+            .OrderBy(e => e.Date)
+            .ThenBy(e => e.Time)
+            .ToList();
+    }
+}
+

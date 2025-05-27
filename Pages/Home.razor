@@ -1,0 +1,87 @@
+﻿@page "/"
+@inject UserService UserService
+@inject EventService EventService
+
+<PageTitle>Home</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        @if (currentUser is not null) {
+            <Heading Size="HeadingSize.Is4">Welcome back, @currentUser.FirstName</Heading>
+            <Paragraph>You are hosting @(upcomingEventsHosting?.Count ?? 0) upcoming events and attending @(upcomingEventsAttending?.Count ?? 0) events.</Paragraph>
+            <Accordion>
+                <AccordionItem>
+                    <AccordionHeader>
+                        <Heading Size="HeadingSize.Is3">
+                            <AccordionToggle TextWeight="TextWeight.Bold">Hosting</AccordionToggle>
+                        </Heading>
+                    </AccordionHeader>
+                    <AccordionBody>
+                        @if (upcomingEventsHosting.Count > 0) {
+                            <CardDeck @key="@upcomingEventsHosting.Count">
+                                @foreach (var upcomingEvent in upcomingEventsHosting) {
+                                    <EventCard existingEvent="@upcomingEvent" />
+                                } 
+                            </CardDeck>
+                        }
+                    </AccordionBody>
+                </AccordionItem>
+                <AccordionItem>
+                    <AccordionHeader>
+                        <Heading Size="HeadingSize.Is3">
+                            <AccordionToggle TextWeight="TextWeight.Bold">Attending</AccordionToggle>
+                        </Heading>
+                    </AccordionHeader>
+                    <AccordionBody>
+                        @if (upcomingEventsAttending.Count > 0) {
+                            <CardDeck @key="@upcomingEventsAttending.Count">
+                                @foreach (var upcomingEvent in upcomingEventsAttending) {
+                                    <EventCard existingEvent="@upcomingEvent" />
+                                }
+                            </CardDeck>
+                        }
+                    </AccordionBody>
+                </AccordionItem>
+            </Accordion>
+        } else {
+            <Heading Size="HeadingSize.Is4">Welcome back, User</Heading>
+            <Paragraph>Loading your events...</Paragraph>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <Heading Size="HeadingSize.Is4">Welcome to EventEase</Heading>
+        <Paragraph>Please log in to access your events.</Paragraph>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private UserModel? currentUser;
+    private List<EventModel> upcomingEventsHosting = new();
+    private List<EventModel> upcomingEventsAttending = new();
+    
+    protected override async Task OnInitializedAsync() {
+        currentUser = await UserService.GetCurrentUserAsync();
+        await RefreshEventsAsync();
+    }
+
+    private async Task RefreshEventsAsync() {
+        var currentDate = DateOnly.FromDateTime(DateTime.Today);
+        var allEvents = await EventService.GetAllEventsAsync();
+        
+        if (currentUser is null) return; // No user logged in
+
+        // Filter events based on the current date
+        var upcomingEvents = allEvents
+            .AsParallel()
+            .Where(e => e.Date <= currentDate.AddDays(7))
+            .OrderBy(e => e.Date)
+            .ThenBy(e => e.Time)
+            .ToList();
+        
+        // Filter events for the current user
+        upcomingEventsHosting = upcomingEvents.Where(e => e.HostEmail == currentUser.Email).ToList();
+        upcomingEventsAttending = upcomingEvents.Where(e => e.Attendees.Any(a => a.Email == currentUser.Email)).ToList();
+
+        StateHasChanged(); // Force UI refresh
+    } 
+}

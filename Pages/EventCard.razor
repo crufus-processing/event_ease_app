@@ -1,0 +1,118 @@
+@inject NavigationManager NavManager
+@inject UserService UserService
+@inject EventService EventService
+
+<Card @key="@existingEvent.AttendeeCount">
+    <CardBody>
+        <CardTitle Class="fs-4 mb-2" TextWeight="TextWeight.Bold">
+            <CardLink To="@($"/events/{existingEvent.Name}")">@existingEvent.Name</CardLink>
+        </CardTitle>
+        <CardText>Date: @existingEvent.Date</CardText>
+        <CardText>Time: @existingEvent.Time</CardText>
+        <CardText>Location: @existingEvent.Location</CardText>
+        <CardText>Attendees: @existingEvent.AttendeeCount</CardText>
+        <CardText>Host Email: @existingEvent.HostEmail</CardText>
+        
+        <Accordion Class="my-3">
+            <AccordionItem>
+                <AccordionHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>Event Description</AccordionToggle>
+                    </Heading>
+                </AccordionHeader>
+                <AccordionBody>
+                    <Paragraph>@existingEvent.Description</Paragraph>
+                </AccordionBody>
+            </AccordionItem>
+
+            <AccordionItem>
+                <AccordionHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>View Attendees</AccordionToggle>
+                    </Heading>
+                </AccordionHeader>
+                <AccordionBody>
+                    <ListView TItem="UserModel"
+                        Data="@existingEvent.Attendees.OrderBy(a => a.FirstName)"
+                        TextField="(item) => item.FirstName + ' ' + item.LastName"
+                        ValueField="(item) => item.Email"
+                        Mode="ListGroupMode.Static"
+                        MaxHeight="300px">
+                    </ListView>
+                </AccordionBody>
+            </AccordionItem>
+        </Accordion>
+        
+    
+        @if (isAttending) {
+            <Button Margin="Margin.Is1" Color="Color.Secondary" Clicked="@Unregister">Unregister</Button>
+        } else {
+            <Button Margin="Margin.Is1" Color="Color.Primary" Clicked="@Register">Register</Button>
+        }
+
+        @if(isHosting) {
+            <Button Margin="Margin.Is1" Color="Color.Secondary" Type="ButtonType.Link" To="@($"/edit/{existingEvent.Name}")">Edit</Button>
+            <Button Margin="Margin.Is1" Color="Color.Danger" Clicked="@Delete">Delete</Button>
+        }
+    </CardBody>
+</Card>
+
+@code {
+    [Parameter]
+    public EventModel existingEvent { get; set; } = new();
+    private UserModel? currentUser;
+    
+    private bool isHosting = false; // Indicates if the current user is the host of the event
+    private bool isAttending = false; // Indicates if the current user is attending the event
+
+    protected override async Task OnInitializedAsync() {
+        currentUser = await UserService.GetCurrentUserAsync(); // Get the current user
+        
+        if (currentUser is null || existingEvent is null) return; // Ensure current user and event are not null
+        
+        // Get the current user's hosting and attending status for this event
+        isHosting = existingEvent.HostEmail == currentUser.Email;
+        isAttending = existingEvent.Attendees.Any(a => a.Email == currentUser.Email);
+    }
+
+    // This method is called when the user clicks the "Register" button
+    private async Task Register() {
+        if (currentUser is null || existingEvent is null) return; // Ensure current user and event are not null
+
+        // Add attendee to the event and refresh the event data
+        await EventService.AddAttendeeAsync(existingEvent.Name, currentUser.Email);
+        await RefreshEventData();
+        NavManager.NavigateTo("/attending"); // Redirect to the "Attending" page
+    }
+
+    // This method is called when the current user clicks the "Unregister" button
+    private async Task Unregister() {
+        if (currentUser is null || existingEvent is null) return; // Ensure current user and event are not null  
+
+        // Remove attendee from the event and refresh the event data
+        await EventService.RemoveAttendeeAsync(existingEvent.Name, currentUser.Email);
+        await RefreshEventData();
+        NavManager.NavigateTo("/attending"); // Redirect to the "Attending" page
+    }
+
+    // This method is called when the current user clicks the "Delete" button
+    private async Task Delete() {
+        if (currentUser is null || existingEvent is null) return; // Ensure current user and event are not null
+
+        await EventService.DeleteEvent(existingEvent.Name); // Delete the event
+        NavManager.NavigateTo("/hosting"); // Redirect to the "Hosting" page
+    }
+
+    // This method refreshes the event data and recalculates the user's hosting and attending status
+    private async Task RefreshEventData() {
+        var updatedEvent = await EventService.GetEventByNameAsync(existingEvent.Name); // Get latest event data
+        
+        if (currentUser is null || updatedEvent is null) return; // Ensure current user and updated event is not null
+        
+        existingEvent = updatedEvent; // Update the existing event
+        isAttending = existingEvent.Attendees.Any(a => a.Email == currentUser.Email); // Recalculate isAttending
+        isHosting = existingEvent.HostEmail == currentUser.Email; // Recalculate isHosting
+        
+        StateHasChanged(); // Force UI refresh
+    }
+}
