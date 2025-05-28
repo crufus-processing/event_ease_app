@@ -18,6 +18,7 @@
     <Layout>
         <LayoutHeader @key="@NavManager.Uri" Fixed>
             <Bar Mode="BarMode.Horizontal"
+                CollapseMode="BarCollapseMode.Small"
                 Breakpoint="Breakpoint.Desktop"
                 Background="Background.Light"
                 ThemeContrast="ThemeContrast.Light">
@@ -73,8 +74,8 @@
 
     // This method sets the page title based on the current route
     private void SetPageTitle() {
-        var fullPath = new Uri(NavManager.Uri).AbsolutePath; // Get the current path
-        var path = new Uri(NavManager.Uri).AbsolutePath.Replace(fullPath, ""); // Remove the base path
+        var basePath = new Uri(NavManager.BaseUri).AbsolutePath; // Base path of the application
+        var path = new Uri(NavManager.Uri).AbsolutePath.Replace(basePath, ""); // Remove the base path
         
         // Set the page title based on the current path
         pageTitle = path switch {
