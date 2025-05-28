@@ -1,0 +1,73 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = EventEaseApp
+build_property.RootNamespace = EventEaseApp
+build_property.ProjectDir = /home/ryan/vscode/EventEaseApp/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /home/ryan/vscode/EventEaseApp
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[/home/ryan/vscode/EventEaseApp/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/Pages/AttendingPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQXR0ZW5kaW5nUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/Pages/AuthPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQXV0aFBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/Pages/EditPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRWRpdFBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/Pages/EventCard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRXZlbnRDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/Pages/EventPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRXZlbnRQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/Pages/EventsPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRXZlbnRzUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/Pages/HostingPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSG9zdGluZ1BhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ryan/vscode/EventEaseApp/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L01haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-2f8u2xc82h
+
+[/home/ryan/vscode/EventEaseApp/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L05hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-lgqihia8n6
