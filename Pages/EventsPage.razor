@@ -18,7 +18,7 @@
         SortMode="DataGridSortMode.Multiple"
         Hoverable
         NavigationMode="DataGridNavigationMode.Row"
-        RowDoubleClicked="@(() => NavManager.NavigateTo($"/events/{selectedEvent.Name}"))"  >
+        RowDoubleClicked="@(() => NavManager.NavigateTo($"{NavManager.BaseUri}events/{selectedEvent.Name}"))"  >
     
         <DataGridCommandColumn />
         <DataGridColumn Field="@nameof(EventModel.Name)" Caption="Name" TextOverflow="TextOverflow.Truncate"/>

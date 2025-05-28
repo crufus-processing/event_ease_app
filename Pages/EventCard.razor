@@ -5,7 +5,7 @@
 <Card @key="@existingEvent.AttendeeCount">
     <CardBody>
         <CardTitle Class="fs-4 mb-2" TextWeight="TextWeight.Bold">
-            <CardLink To="@($"/events/{existingEvent.Name}")">@existingEvent.Name</CardLink>
+            <CardLink To="@($"{NavManager.BaseUri}events/{existingEvent.Name}")">@existingEvent.Name</CardLink>
         </CardTitle>
         <CardText>Date: @existingEvent.Date</CardText>
         <CardText>Time: @existingEvent.Time</CardText>
@@ -51,7 +51,7 @@
         }
 
         @if(isHosting) {
-            <Button Margin="Margin.Is1" Color="Color.Secondary" Type="ButtonType.Link" To="@($"/edit/{existingEvent.Name}")">Edit</Button>
+            <Button Margin="Margin.Is1" Color="Color.Secondary" Type="ButtonType.Link" To="@($"{NavManager.BaseUri}edit/{existingEvent.Name}")">Edit</Button>
             <Button Margin="Margin.Is1" Color="Color.Danger" Clicked="@Delete">Delete</Button>
         }
     </CardBody>
@@ -82,7 +82,7 @@
         // Add attendee to the event and refresh the event data
         await EventService.AddAttendeeAsync(existingEvent.Name, currentUser.Email);
         await RefreshEventData();
-        NavManager.NavigateTo("/attending"); // Redirect to the "Attending" page
+        NavManager.NavigateTo($"{NavManager.BaseUri}attending"); // Redirect to the "Attending" page
     }
 
     // This method is called when the current user clicks the "Unregister" button
@@ -92,7 +92,7 @@
         // Remove attendee from the event and refresh the event data
         await EventService.RemoveAttendeeAsync(existingEvent.Name, currentUser.Email);
         await RefreshEventData();
-        NavManager.NavigateTo("/attending"); // Redirect to the "Attending" page
+        NavManager.NavigateTo($"{NavManager.BaseUri}attending"); // Redirect to the "Attending" page
     }
 
     // This method is called when the current user clicks the "Delete" button
@@ -100,7 +100,7 @@
         if (currentUser is null || existingEvent is null) return; // Ensure current user and event are not null
 
         await EventService.DeleteEvent(existingEvent.Name); // Delete the event
-        NavManager.NavigateTo("/hosting"); // Redirect to the "Hosting" page
+        NavManager.NavigateTo($"{NavManager.BaseUri}hosting"); // Redirect to the "Hosting" page
     }
 
     // This method refreshes the event data and recalculates the user's hosting and attending status

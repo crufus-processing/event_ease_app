@@ -1,4 +1,6 @@
-﻿<Bar Mode="BarMode.VerticalInline"
+﻿@inject NavigationManager NavManager
+
+<Bar Mode="BarMode.VerticalInline"
     Alignment="Alignment.Start"
     Breakpoint="Breakpoint.Desktop"
     Background="Background.Light"
@@ -11,31 +13,31 @@
     </BarBrand>
     <BarMenu>
         <BarItem>
-            <BarLink To="/">
+            <BarLink To="@NavManager.BaseUri">
                 <BarIcon IconName="IconName.Portrait" />
                 <Text>Home</Text>
             </BarLink>
         </BarItem>
         <BarItem>
-            <BarLink To="/events">
+            <BarLink To="@($"{NavManager.BaseUri}events")">
                 <BarIcon IconName="IconName.CalendarWeek" />
                 <Text>All Events</Text>
             </BarLink>
         </BarItem>
         <BarItem>
-            <BarLink To="/attending">
+            <BarLink To="@($"{NavManager.BaseUri}attending")">
                 <BarIcon IconName="IconName.CalendarDay" />
                 <Text>Attending</Text>
             </BarLink>
         </BarItem>
         <BarItem>
-            <BarLink To="/hosting">
+            <BarLink To="@($"{NavManager.BaseUri}hosting")">
                 <BarIcon IconName="IconName.CalendarCheck" />
                 <Text>Hosting</Text>
             </BarLink>
         </BarItem>
         <BarItem>
-            <BarLink To="/edit">
+            <BarLink To="@($"{NavManager.BaseUri}edit")">
                 <BarIcon IconName="IconName.PlusSquare" />
                 <Text>Create Event</Text>
             </BarLink>

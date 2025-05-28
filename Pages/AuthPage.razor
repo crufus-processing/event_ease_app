@@ -98,7 +98,7 @@
 
         // If login/signup was succesful, navigate to the home page after a delay. Otherwise, show the failure alert.
         await (success 
-            ? Task.Delay(2000).ContinueWith(_ => NavManager.NavigateTo("/")) 
+            ? Task.Delay(2000).ContinueWith(_ => NavManager.NavigateTo($"{NavManager.BaseUri}")) 
             : ShowAlert(failureAlert));
     }
 

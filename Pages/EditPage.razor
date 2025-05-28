@@ -127,7 +127,7 @@
         // If the event was saved successfully, navigate to the home page after a delay
         if (saved) {
             await Task.Delay(1000);
-            NavManager.NavigateTo("/");
+            NavManager.NavigateTo($"{NavManager.BaseUri}");
         }
     }
 

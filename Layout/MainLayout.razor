@@ -33,8 +33,8 @@
                                     <Button Color="Color.Secondary" Clicked="@LogoutAsync">Log out</Button>
                                 </Authorized>
                                 <NotAuthorized>
-                                    <Button Margin="Margin.Is1" Color="Color.Primary" Type="ButtonType.Link" To="/auth/signup">Sign up</Button>
-                                    <Button Color="Color.Secondary" Type="ButtonType.Link" To="/auth/login">Log in</Button>
+                                    <Button Margin="Margin.Is1" Color="Color.Primary" Type="ButtonType.Link" To="@($"{NavManager.BaseUri}auth/signup")">Sign up</Button>
+                                    <Button Color="Color.Secondary" Type="ButtonType.Link" To="@($"{NavManager.BaseUri}auth/login")">Log in</Button>
                                 </NotAuthorized>
                             </AuthorizeView>
                         </BarItem>
@@ -73,18 +73,19 @@
 
     // This method sets the page title based on the current route
     private void SetPageTitle() {
-        var path = new Uri(NavManager.Uri).AbsolutePath; // Get the current path
+        var fullPath = new Uri(NavManager.Uri).AbsolutePath; // Get the current path
+        var path = new Uri(NavManager.Uri).AbsolutePath.Replace(fullPath, ""); // Remove the base path
         
         // Set the page title based on the current path
         pageTitle = path switch {
-            "/" => "Home",
-            "/events" => "Events",
-            "/attending" => "Attending",
-            "/hosting" => "Hosting",
-            "/auth/login" => "Login",
-            "/auth/signup" => "Sign Up",
-            _ when path.StartsWith("/edit") => path == "/edit" ? "Create Event" : $"Edit Event: {Uri.UnescapeDataString(path.Replace("/edit/", ""))}",
-            _ when path.StartsWith("/events") => "Event Details",
+            "" => "Home",
+            "events" => "Events",
+            "attending" => "Attending",
+            "hosting" => "Hosting",
+            "auth/login" => "Login",
+            "auth/signup" => "Sign Up",
+            _ when path.StartsWith("edit") => path == "edit" ? "Create Event" : $"Edit Event: {Uri.UnescapeDataString(path.Replace("edit/", ""))}",
+            _ when path.StartsWith("events") => "Event Details",
             _ => string.Empty
         };
     }
@@ -92,6 +93,6 @@
     // This method is called when the user clicks the logout button
     private async Task LogoutAsync() {
         await UserService.LogoutAsync(); // Call logout service
-        NavManager.NavigateTo("/"); // Redirect to home page
+        NavManager.NavigateTo($"{NavManager.BaseUri}"); // Redirect to home page
     }
 }
